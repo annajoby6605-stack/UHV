@@ -84,3 +84,12 @@ Demo employee accounts are seeded when `app.demo.mode` is enabled (the default f
 ## ☁️ Deployment Notes
 
 This repository contains the application source; pushing it to GitHub does not itself host or run the application. For a hosted deployment, provide a MySQL-compatible database and configure `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME`, `SPRING_DATASOURCE_PASSWORD`, `APP_JWT_SECRET`, and `APP_DEMO_MODE=false` in the hosting provider's environment settings. Keep credentials out of source control. Configure a real OTP delivery provider before enabling non-demo employee verification.
+
+### Deploy on Railway
+
+1. Create a Railway project from this GitHub repository and deploy the service using the included `Dockerfile` and `railway.toml`.
+2. Add a MySQL service to the Railway project and reference its `MYSQLHOST`, `MYSQLPORT`, `MYSQLDATABASE`, `MYSQLUSER`, and `MYSQLPASSWORD` variables in the application service. Alternatively, set `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME`, and `SPRING_DATASOURCE_PASSWORD` directly.
+3. Set `APP_JWT_SECRET` to a unique, private secret of at least 32 bytes. Keep `APP_DEMO_MODE=true` only for a public demo; it enables demo employee accounts and displays their verification code in the app. For a real deployment, set `APP_DEMO_MODE=false` and configure an OTP delivery provider before enabling employee access.
+4. Add a Railway persistent volume mounted at `/app/uploads` if uploaded report images must survive redeployments. Set the service's public domain in Railway's networking settings.
+
+The backend and database must both be running for authentication, reporting, and rewards to work. GitHub Pages alone cannot run this Spring Boot application.
