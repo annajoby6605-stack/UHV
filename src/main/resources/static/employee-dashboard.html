@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panchayat Employee Portal – Road Works & Community Administration</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    .villager-link-btn {
+      background: none;
+      border: none;
+      padding: 0;
+      color: var(--primary);
+      font-weight: 700;
+      font-size: 0.88rem;
+      cursor: pointer;
+      text-decoration: underline;
+      text-align: left;
+    }
+    .villager-link-btn:hover {
+      color: var(--accent-gold);
+    }
+  </style>
+</head>
+<body style="background: #f4efe6;">
+
+  <!-- Navigation Bar -->
+  <nav class="navbar" style="border-bottom: 2px solid var(--accent-gold);">
+    <div class="nav-container">
+      <a href="/employee-dashboard.html" class="brand">
+        <div class="brand-icon">🏛️</div>
+        <div>
+          <div>Gram Panchayat Portal</div>
+          <span class="brand-subtitle" id="nav-panchayat-name">Sundarapuram Gram Panchayat</span>
+        </div>
+      </a>
+      <div class="nav-actions">
+        <div style="text-align: right; margin-right: 0.5rem;">
+          <div style="font-size: 0.88rem; font-weight: 700; color: var(--primary-dark);" id="emp-name-badge">Panchayat Staff</div>
+          <div style="font-size: 0.75rem; color: var(--text-muted);" id="emp-code-badge">Authorized Staff Session</div>
+        </div>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="API.logout()">Logout</button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="section" style="max-width: 1350px;">
+    <!-- Header Notice -->
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.75rem;">
+      <div>
+        <h1 style="font-size: 1.85rem; font-weight: 800; color: var(--primary-dark); margin-bottom: 0.25rem;">
+          Community Road Works & Villager Reports Administration
+        </h1>
+        <p style="font-size: 0.92rem; color: var(--text-muted); margin: 0;">
+          Monitor all citizens' submitted road defect reports, track repair progress, and inspect reward statistics.
+        </p>
+      </div>
+
+      <div style="background: #ffffff; border: 1.5px solid var(--border-color); padding: 0.65rem 1rem; border-radius: var(--radius-md); font-size: 0.82rem; color: var(--text-muted);">
+        🔒 <strong>Policy:</strong> AI verification and +20 point rewards are automated. Staff log physical repair milestones only.
+      </div>
+    </div>
+
+    <!-- A. Community Overview Statistics Cards (Real Database Data) -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+      <div class="card" style="padding: 1rem; text-align: center; border-left: 4px solid var(--primary);">
+        <div style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Reporting Villagers</div>
+        <div style="font-size: 1.6rem; font-weight: 800; color: var(--primary-dark);" id="stat-reporting-villagers">0</div>
+        <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.15rem;">Citizens reporting</div>
+      </div>
+
+      <div class="card" style="padding: 1rem; text-align: center; border-left: 4px solid #2d6a4f;">
+        <div style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Total Road Reports</div>
+        <div style="font-size: 1.6rem; font-weight: 800; color: var(--primary-dark);" id="stat-total">0</div>
+        <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.15rem;">All submissions</div>
+      </div>
+
+      <div class="card" style="padding: 1rem; text-align: center; border-left: 4px solid var(--status-pending);">
+        <div style="font-size: 0.72rem; font-weight: 700; color: var(--status-pending); text-transform: uppercase;">Pending Repairs</div>
+        <div style="font-size: 1.6rem; font-weight: 800; color: var(--status-pending);" id="stat-pending">0</div>
+        <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.15rem;">Awaiting work</div>
+      </div>
+
+      <div class="card" style="padding: 1rem; text-align: center; border-left: 4px solid var(--status-inprogress);">
+        <div style="font-size: 0.72rem; font-weight: 700; color: var(--status-inprogress); text-transform: uppercase;">In Progress</div>
+        <div style="font-size: 1.6rem; font-weight: 800; color: var(--status-inprogress);" id="stat-inprogress">0</div>
+        <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.15rem;">Active repairs</div>
+      </div>
+
+      <div class="card" style="padding: 1rem; text-align: center; border-left: 4px solid #047857;">
+        <div style="font-size: 0.72rem; font-weight: 700; color: #047857; text-transform: uppercase;">Roads Resolved</div>
+        <div style="font-size: 1.6rem; font-weight: 800; color: #047857;" id="stat-resolved">0</div>
+        <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.15rem;">Repairs completed</div>
+      </div>
+
+      <div class="card" style="padding: 1rem; text-align: center; border-left: 4px solid var(--accent-gold);">
+        <div style="font-size: 0.72rem; font-weight: 700; color: var(--accent-gold); text-transform: uppercase;">Points Awarded</div>
+        <div style="font-size: 1.6rem; font-weight: 800; color: var(--accent-gold);" id="stat-points-awarded">0 pts</div>
+        <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.15rem;">To villagers</div>
+      </div>
+
+      <div class="card" style="padding: 1rem; text-align: center; border-left: 4px solid var(--status-accepted);">
+        <div style="font-size: 0.72rem; font-weight: 700; color: var(--status-accepted); text-transform: uppercase;">Eligible Reports</div>
+        <div style="font-size: 1.6rem; font-weight: 800; color: var(--status-accepted);" id="stat-eligible-reports">0</div>
+        <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.15rem;">Earned rewards</div>
+      </div>
+    </div>
+
+    <!-- D. Filters & Search Toolbar -->
+    <div class="card" style="margin-bottom: 1.75rem; padding: 1.25rem;">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)) auto; gap: 1rem; align-items: flex-end;">
+        <div>
+          <label class="form-label" style="font-size: 0.8rem;">Search Villager or Report ID</label>
+          <input type="text" id="search-keyword" class="form-input" placeholder="e.g. Ramesh, REP-2026..." onkeyup="handleSearch(event)">
+        </div>
+
+        <div>
+          <label class="form-label" style="font-size: 0.8rem;">Filter by Location / Road</label>
+          <input type="text" id="filter-location" class="form-input" placeholder="e.g. Market Road, Ward 4..." onkeyup="handleSearch(event)">
+        </div>
+
+        <div>
+          <label class="form-label" style="font-size: 0.8rem;">Filter by Repair Status</label>
+          <select id="filter-repair-status" class="form-select" onchange="loadReports()">
+            <option value="">All Repair Statuses</option>
+            <option value="PENDING">Pending Repair</option>
+            <option value="IN_PROGRESS">Repairs In Progress</option>
+            <option value="RESOLVED">Repairs Resolved</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="form-label" style="font-size: 0.8rem;">Filter by AI Verification</label>
+          <select id="filter-status" class="form-select" onchange="loadReports()">
+            <option value="">All Verification States</option>
+            <option value="ACCEPTED">ACCEPTED (Valid Road Damage)</option>
+            <option value="REJECTED_UNRELATED">REJECTED (Unrelated Photo)</option>
+            <option value="REJECTED_DUPLICATE">REJECTED (Duplicate Defect)</option>
+            <option value="NEEDS_REVIEW">NEEDS_REVIEW (Uncertain)</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="form-label" style="font-size: 0.8rem;">Filter by Date</label>
+          <input type="date" id="filter-date" class="form-input" onchange="loadReports()">
+        </div>
+
+        <div>
+          <label class="form-label" style="font-size: 0.8rem;">Sort By</label>
+          <select id="sort-by" class="form-select" onchange="loadReports()">
+            <option value="recent">Most Recent First</option>
+            <option value="points">Points Earned (High to Low)</option>
+            <option value="villager_points">Villager Total Points</option>
+          </select>
+        </div>
+
+        <div style="display: flex; gap: 0.5rem;">
+          <button type="button" class="btn btn-primary" onclick="loadReports()">
+            🔍 Filter
+          </button>
+          <button type="button" class="btn btn-secondary" onclick="resetFilters()">
+            Clear
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- B. All Villagers' Work Management Table (NO PHOTO DISPLAY) -->
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <h2 class="card-title">All Villagers' Road Work Submissions</h2>
+          <span style="font-size: 0.85rem; color: var(--text-muted);">
+            Review work descriptions, report details, locations, verification results, and update repair statuses.
+          </span>
+        </div>
+        <span class="badge badge-points" id="table-count-badge">0 Reports Listed</span>
+      </div>
+
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Report ID</th>
+              <th>Villager Name</th>
+              <th>Problem / Work Description</th>
+              <th>Village & Location</th>
+              <th>Submission Date</th>
+              <th>AI Verification</th>
+              <th>Repair Status</th>
+              <th>Points Earned</th>
+              <th>Villager Total Points</th>
+              <th>Villager Total Reports</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="employee-reports-body">
+            <tr>
+              <td colspan="11" style="text-align: center; padding: 2.5rem; color: var(--text-muted);">Loading community road reports...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <!-- E. Update Repair Status Modal -->
+  <div id="repair-modal" class="modal-overlay">
+    <div class="modal-content" style="max-width: 540px;">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-title">Update Road Repair Status</h3>
+          <span id="repair-modal-report-id" style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">REP-2026-1001</span>
+        </div>
+        <button type="button" class="modal-close" onclick="closeRepairModal()">&times;</button>
+      </div>
+
+      <div style="background: var(--bg-cream); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 0.85rem 1rem; margin-bottom: 1.25rem;">
+        <div style="font-size: 0.88rem; font-weight: 700; color: var(--primary-dark);" id="repair-modal-road">Market Road, Ward 4</div>
+        <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem;" id="repair-modal-desc">Deep pothole cavity near school</div>
+        <div style="font-size: 0.78rem; color: var(--primary); font-family: monospace; margin-top: 0.25rem;" id="repair-modal-coords">📍 Lat: 10.1234, Lon: 76.4321</div>
+      </div>
+
+      <form id="repair-update-form">
+        <input type="hidden" id="current-report-id">
+
+        <div class="form-group">
+          <label class="form-label" for="new-repair-status">Select New Repair Status</label>
+          <select id="new-repair-status" class="form-select" required>
+            <option value="PENDING">Pending Repair (Report logged, inspection pending)</option>
+            <option value="IN_PROGRESS">Repairs In Progress (Maintenance team dispatched on-site)</option>
+            <option value="RESOLVED">Repairs Resolved (Asphalt patched and inspected)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="repair-notes">Field Officer Progress Notes / Remarks</label>
+          <textarea id="repair-notes" class="form-textarea" rows="3" placeholder="e.g. Cold mix asphalt dispatched, road patched and roller compacted..." required></textarea>
+          <div class="form-help">This note is recorded in the permanent audit trail and is visible to the reporting villager.</div>
+        </div>
+
+        <button type="submit" id="save-repair-btn" class="btn btn-primary btn-lg" style="width: 100%;">
+          Save Repair Progress Update
+        </button>
+      </form>
+
+      <!-- Audit History List -->
+      <div style="margin-top: 1.5rem; border-top: 1px solid var(--border-color); padding-top: 1rem;">
+        <h4 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 0.75rem; color: var(--primary-dark);">Audit Trail for this Road</h4>
+        <div id="repair-audit-list" style="font-size: 0.85rem; max-height: 160px; overflow-y: auto;">
+          Loading audit trail...
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- C. Villager Statistics & Rewards Summary Modal -->
+  <div id="villager-summary-modal" class="modal-overlay">
+    <div class="modal-content" style="max-width: 780px;">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 0.65rem;">
+          <span style="font-size: 1.8rem;">🧑‍🌾</span>
+          <div>
+            <h3 class="modal-title" id="vsum-name">Villager Rewards & Progress Summary</h3>
+            <span style="font-size: 0.82rem; color: var(--text-muted);" id="vsum-email">citizen@email.com</span>
+          </div>
+        </div>
+        <button type="button" class="modal-close" onclick="closeVillagerSummaryModal()">&times;</button>
+      </div>
+
+      <!-- Quick Metrics Grid for this Villager -->
+      <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; margin-bottom: 1.5rem;">
+        <div class="card" style="padding: 0.85rem; text-align: center;">
+          <div style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Submitted</div>
+          <div style="font-size: 1.4rem; font-weight: 800; color: var(--primary-dark);" id="vsum-submitted">0</div>
+        </div>
+        <div class="card" style="padding: 0.85rem; text-align: center; border-left: 3px solid var(--status-accepted);">
+          <div style="font-size: 0.72rem; font-weight: 700; color: var(--status-accepted); text-transform: uppercase;">Eligible & Verified</div>
+          <div style="font-size: 1.4rem; font-weight: 800; color: var(--status-accepted);" id="vsum-accepted">0</div>
+        </div>
+        <div class="card" style="padding: 0.85rem; text-align: center; border-left: 3px solid var(--accent-gold);">
+          <div style="font-size: 0.72rem; font-weight: 700; color: var(--accent-gold); text-transform: uppercase;">Total Points Earned</div>
+          <div style="font-size: 1.4rem; font-weight: 800; color: var(--accent-gold);" id="vsum-points-earned">0 pts</div>
+        </div>
+        <div class="card" style="padding: 0.85rem; text-align: center; border-left: 3px solid #047857;">
+          <div style="font-size: 0.72rem; font-weight: 700; color: #047857; text-transform: uppercase;">Current Balance</div>
+          <div style="font-size: 1.4rem; font-weight: 800; color: #047857;" id="vsum-points-balance">0 pts</div>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem; font-size: 0.8rem; color: var(--text-muted);">
+        <span>Repair status breakdown:</span>
+        <span class="badge badge-pending" id="vsum-pending">0 Pending</span>
+        <span class="badge badge-inprogress" id="vsum-inprogress">0 In Progress</span>
+        <span class="badge badge-resolved" id="vsum-resolved">0 Resolved</span>
+      </div>
+
+      <!-- Individual Reports History Table -->
+      <h4 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 0.6rem; color: var(--primary-dark);">Individual Report History & Points Log</h4>
+      <div class="table-responsive" style="max-height: 250px; overflow-y: auto;">
+        <table class="data-table" style="font-size: 0.84rem;">
+          <thead>
+            <tr>
+              <th>Report #</th>
+              <th>Road & Location</th>
+              <th>Description</th>
+              <th>AI Status</th>
+              <th>Repair Status</th>
+              <th>Points Awarded</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody id="vsum-reports-table">
+            <tr>
+              <td colspan="7" style="text-align: center; padding: 1.5rem; color: var(--text-muted);">Loading villager reports...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div style="margin-top: 1rem; font-size: 0.78rem; color: var(--text-muted); background: var(--bg-cream); padding: 0.65rem 0.85rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+        🔒 <strong>Automated Points System:</strong> Points are automatically granted (+20 pts) upon AI image verification and duplicate check. Panchayat staff can monitor rewards but cannot manually alter citizen points.
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script>
+    // Protect Employee Page
+    const user = API.getUser();
+    if (!user || user.role !== 'PANCHAYAT_EMPLOYEE') {
+      window.location.href = '/employee-login.html';
+    }
+
+    document.getElementById('emp-name-badge').textContent = user.fullName || 'Panchayat Staff';
+    document.getElementById('emp-code-badge').textContent = `${user.employeeCode || 'EMP'} • ${user.designation || 'Officer'}`;
+    if (user.panchayatName) {
+      document.getElementById('nav-panchayat-name').textContent = user.panchayatName;
+    }
+
+    // Load Community Overview Statistics from MySQL
+    async function loadStats() {
+      try {
+        const resp = await API.getEmployeeStats();
+        if (resp.success && resp.data) {
+          const s = resp.data;
+          document.getElementById('stat-reporting-villagers').textContent = s.totalVillagersReporting != null ? s.totalVillagersReporting : '-';
+          document.getElementById('stat-total').textContent = s.totalReports != null ? s.totalReports : 0;
+          document.getElementById('stat-pending').textContent = s.pendingRepairs != null ? s.pendingRepairs : 0;
+          document.getElementById('stat-inprogress').textContent = s.inProgressRepairs != null ? s.inProgressRepairs : 0;
+          document.getElementById('stat-resolved').textContent = s.resolvedRoads != null ? s.resolvedRoads : 0;
+          document.getElementById('stat-points-awarded').textContent = `${s.totalPointsAwarded != null ? s.totalPointsAwarded : 0} pts`;
+          document.getElementById('stat-eligible-reports').textContent = s.eligibleReports != null ? s.eligibleReports : (s.acceptedReports || 0);
+        }
+      } catch (err) {
+        console.warn('Failed to load employee stats:', err);
+      }
+    }
+
+    // Load & Filter All Villagers' Reports
+    let cachedReports = [];
+
+    async function loadReports() {
+      const status = document.getElementById('filter-status').value;
+      const repairStatus = document.getElementById('filter-repair-status').value;
+      const dateFilter = document.getElementById('filter-date').value;
+      const locationFilter = document.getElementById('filter-location').value.trim().toLowerCase();
+      const keyword = document.getElementById('search-keyword').value.trim().toLowerCase();
+      const sortBy = document.getElementById('sort-by').value;
+
+      const params = {};
+      if (status) params.status = status;
+      if (repairStatus) params.repairStatus = repairStatus;
+      if (keyword) params.keyword = keyword;
+
+      try {
+        const resp = await API.getEmployeeReports(params);
+        if (resp.success && resp.data) {
+          let list = resp.data;
+
+          // Client-side Location Filter
+          if (locationFilter) {
+            list = list.filter(r => 
+              (r.roadName && r.roadName.toLowerCase().includes(locationFilter)) ||
+              (r.villageArea && r.villageArea.toLowerCase().includes(locationFilter))
+            );
+          }
+
+          // Client-side Date Filter
+          if (dateFilter) {
+            list = list.filter(r => r.createdAt && r.createdAt.startsWith(dateFilter));
+          }
+
+          // Client-side Sorting
+          if (sortBy === 'points') {
+            list.sort((a, b) => (b.pointsAwarded || 0) - (a.pointsAwarded || 0));
+          } else if (sortBy === 'villager_points') {
+            list.sort((a, b) => ((b.villagerTotalPointsEarned || b.villagerPointsBalance || 0) - (a.villagerTotalPointsEarned || a.villagerPointsBalance || 0)));
+          } else {
+            // Most recent first
+            list.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+          }
+
+          cachedReports = list;
+          renderReports(list);
+        }
+      } catch (err) {
+        showToast('Error loading reports: ' + err.message, 'error');
+      }
+    }
+
+    function resetFilters() {
+      document.getElementById('filter-status').value = '';
+      document.getElementById('filter-repair-status').value = '';
+      document.getElementById('filter-date').value = '';
+      document.getElementById('filter-location').value = '';
+      document.getElementById('search-keyword').value = '';
+      document.getElementById('sort-by').value = 'recent';
+      loadReports();
+    }
+
+    function handleSearch(e) {
+      if (e.key === 'Enter') {
+        loadReports();
+      }
+    }
+
+    // Render Table (WITHOUT PHOTO DISPLAY)
+    function renderReports(reports) {
+      const tbody = document.getElementById('employee-reports-body');
+      document.getElementById('table-count-badge').textContent = `${reports.length} Reports Listed`;
+
+      if (reports.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="11" style="text-align: center; padding: 2.5rem; color: var(--text-muted);">No villager reports match the current filter criteria.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = reports.map(r => {
+        let statusBadge = '';
+        if (r.status === 'ACCEPTED') {
+          statusBadge = `<span class="badge badge-accepted">✓ AI Accepted</span>`;
+        } else if (r.status === 'REJECTED_UNRELATED') {
+          statusBadge = `<span class="badge badge-rejected">✕ Rejected: Unrelated</span>`;
+        } else if (r.status === 'REJECTED_DUPLICATE') {
+          statusBadge = `<span class="badge badge-rejected">✕ Rejected: Duplicate</span>`;
+        } else {
+          statusBadge = `<span class="badge badge-pending">⏳ Needs Review</span>`;
+        }
+
+        let repairBadge = '';
+        if (r.repairStatus === 'RESOLVED') {
+          repairBadge = `<span class="badge badge-resolved">🚜 Resolved</span>`;
+        } else if (r.repairStatus === 'IN_PROGRESS') {
+          repairBadge = `<span class="badge badge-inprogress">🔧 In Progress</span>`;
+        } else {
+          repairBadge = `<span class="badge badge-pending">⏳ Pending</span>`;
+        }
+
+        const reportJson = JSON.stringify(r).replace(/'/g, "&#39;");
+        const villagerTotalEarned = r.villagerTotalPointsEarned != null ? r.villagerTotalPointsEarned : (r.villagerPointsBalance || 0);
+        const villagerTotalReps = r.villagerTotalReports != null ? r.villagerTotalReports : 1;
+
+        return `
+          <tr>
+            <td><strong>${r.reportNumber}</strong></td>
+            <td>
+              <button type="button" class="villager-link-btn" onclick="openVillagerSummaryModal(${r.villagerId})" title="Click to view full villager profile & reward stats">
+                👤 ${escapeHtml(r.villagerName)}
+              </button>
+              <div style="font-size: 0.75rem; color: var(--text-muted);">${escapeHtml(r.villagerEmail)}</div>
+            </td>
+            <td>
+              <div style="max-width: 220px; font-size: 0.84rem; line-height: 1.4; color: var(--text-main);">
+                ${escapeHtml(r.description || 'Pothole road defect')}
+              </div>
+            </td>
+            <td>
+              <strong style="font-size: 0.88rem;">${escapeHtml(r.roadName)}</strong>
+              <div style="font-size: 0.78rem; color: var(--text-muted);">${escapeHtml(r.villageArea)}</div>
+              <a href="https://maps.google.com/?q=${r.latitude},${r.longitude}" target="_blank" style="font-size: 0.75rem; font-family: monospace;">
+                📍 ${r.latitude.toFixed(4)}, ${r.longitude.toFixed(4)}
+              </a>
+            </td>
+            <td style="font-size: 0.82rem; color: var(--text-muted);">${formatDate(r.createdAt)}</td>
+            <td>
+              ${statusBadge}
+              ${r.aiConfidenceScore ? `<div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.2rem;">Score: ${(r.aiConfidenceScore * 100).toFixed(1)}%</div>` : ''}
+            </td>
+            <td>${repairBadge}</td>
+            <td>
+              ${r.pointsAwarded > 0 ? `<span class="badge badge-points">+${r.pointsAwarded} pts</span>` : `<span style="color: var(--text-muted); font-size: 0.84rem;">0 pts</span>`}
+            </td>
+            <td>
+              <div style="font-weight: 800; color: var(--accent-gold); font-size: 0.88rem;">🪙 ${villagerTotalEarned} pts</div>
+            </td>
+            <td>
+              <span class="badge" style="background: var(--bg-cream); color: var(--primary-dark); border: 1px solid var(--border-color); font-size: 0.78rem;">
+                📋 ${villagerTotalReps} reports
+              </span>
+            </td>
+            <td>
+              <div style="display: flex; flex-direction: column; gap: 0.35rem;">
+                <button type="button" class="btn btn-secondary btn-sm" onclick='openRepairModal(${reportJson})' style="font-size: 0.78rem; padding: 0.35rem 0.65rem;">
+                  🛠️ Update Repair
+                </button>
+                <button type="button" class="btn btn-outline btn-sm" onclick="openVillagerSummaryModal(${r.villagerId})" style="font-size: 0.75rem; padding: 0.25rem 0.5rem;">
+                  👤 Summary
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // Open Repair Status Update Modal
+    function openRepairModal(report) {
+      document.getElementById('current-report-id').value = report.id;
+      document.getElementById('repair-modal-report-id').textContent = `${report.reportNumber} • Status: ${report.repairStatus}`;
+      document.getElementById('repair-modal-road').textContent = `${report.roadName}, ${report.villageArea}`;
+      document.getElementById('repair-modal-desc').textContent = report.description || 'Pothole damage defect';
+      document.getElementById('repair-modal-coords').textContent = `📍 Latitude: ${report.latitude.toFixed(5)}, Longitude: ${report.longitude.toFixed(5)}`;
+      document.getElementById('new-repair-status').value = report.repairStatus;
+      document.getElementById('repair-notes').value = '';
+
+      loadRepairHistory(report.id);
+      document.getElementById('repair-modal').classList.add('active');
+    }
+
+    function closeRepairModal() {
+      document.getElementById('repair-modal').classList.remove('active');
+    }
+
+    async function loadRepairHistory(reportId) {
+      const container = document.getElementById('repair-audit-list');
+      container.innerHTML = '<span style="color: var(--text-muted);">Loading audit history...</span>';
+
+      try {
+        const resp = await API.getRepairHistory(reportId);
+        if (resp.success && resp.data) {
+          if (resp.data.length === 0) {
+            container.innerHTML = '<span style="color: var(--text-muted);">No prior repair updates recorded yet.</span>';
+          } else {
+            container.innerHTML = resp.data.map(h => `
+              <div style="margin-bottom: 0.6rem; padding-bottom: 0.6rem; border-bottom: 1px solid var(--border-color);">
+                <div style="display: flex; justify-content: space-between;">
+                  <strong>${h.previousStatus} → ${h.newStatus}</strong>
+                  <span style="color: var(--text-muted); font-size: 0.75rem;">${formatDate(h.updatedAt)}</span>
+                </div>
+                <div style="color: var(--text-muted); font-size: 0.8rem; margin-top: 0.15rem;">By ${escapeHtml(h.employee.fullName)}: "${escapeHtml(h.notes || 'No remarks')}"</div>
+              </div>
+            `).join('');
+          }
+        }
+      } catch (err) {
+        container.innerHTML = '<span style="color: #dc2626;">Failed to load audit history.</span>';
+      }
+    }
+
+    const repairForm = document.getElementById('repair-update-form');
+    repairForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = document.getElementById('current-report-id').value;
+      const newStatus = document.getElementById('new-repair-status').value;
+      const notes = document.getElementById('repair-notes').value.trim();
+      const btn = document.getElementById('save-repair-btn');
+
+      btn.disabled = true;
+      btn.textContent = 'Saving Progress...';
+
+      try {
+        const resp = await API.updateRepairStatus(id, newStatus, notes);
+        if (resp.success) {
+          showToast('Road repair status updated successfully!', 'success');
+          closeRepairModal();
+          loadStats();
+          loadReports();
+        }
+      } catch (err) {
+        showToast('Update failed: ' + err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Save Repair Progress Update';
+      }
+    });
+
+    // C. Open Villager Summary & Rewards Modal
+    async function openVillagerSummaryModal(villagerId) {
+      if (!villagerId) {
+        showToast('Villager record ID not found.', 'error');
+        return;
+      }
+
+      const modal = document.getElementById('villager-summary-modal');
+      const tableBody = document.getElementById('vsum-reports-table');
+      tableBody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 1.5rem; color: var(--text-muted);">Loading villager summary from database...</td></tr>';
+      modal.classList.add('active');
+
+      try {
+        const resp = await API.getVillagerSummary(villagerId);
+        if (resp.success && resp.data) {
+          const v = resp.data;
+          document.getElementById('vsum-name').textContent = `${v.fullName || 'Villager Citizen'} • Rewards Summary`;
+          document.getElementById('vsum-email').textContent = `${v.email || ''} • Registered Citizen`;
+          document.getElementById('vsum-submitted').textContent = v.totalSubmitted || 0;
+          document.getElementById('vsum-accepted').textContent = v.totalAccepted || 0;
+          document.getElementById('vsum-points-earned').textContent = `${v.totalPointsEarned != null ? v.totalPointsEarned : ((v.totalAccepted || 0) * 20)} pts`;
+          document.getElementById('vsum-points-balance').textContent = `${v.pointsBalance || 0} pts`;
+          document.getElementById('vsum-pending').textContent = `${v.pendingReports || 0} Pending`;
+          document.getElementById('vsum-inprogress').textContent = `${v.inProgressReports || 0} In Progress`;
+          document.getElementById('vsum-resolved').textContent = `${v.resolvedReports || 0} Resolved`;
+
+          const reports = v.recentReports || [];
+          if (reports.length === 0) {
+            tableBody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 1.5rem; color: var(--text-muted);">No reports submitted yet by this villager.</td></tr>';
+          } else {
+            tableBody.innerHTML = reports.map(r => {
+              let stBadge = '';
+              if (r.status === 'ACCEPTED') stBadge = '<span class="badge badge-accepted">✓ Accepted</span>';
+              else if (r.status === 'REJECTED_UNRELATED') stBadge = '<span class="badge badge-rejected">✕ Unrelated</span>';
+              else if (r.status === 'REJECTED_DUPLICATE') stBadge = '<span class="badge badge-rejected">✕ Duplicate</span>';
+              else stBadge = '<span class="badge badge-pending">⏳ Review</span>';
+
+              let repBadge = '';
+              if (r.repairStatus === 'RESOLVED') repBadge = '<span class="badge badge-resolved">🚜 Resolved</span>';
+              else if (r.repairStatus === 'IN_PROGRESS') repBadge = '<span class="badge badge-inprogress">🔧 In Progress</span>';
+              else repBadge = '<span class="badge badge-pending">⏳ Pending</span>';
+
+              return `
+                <tr>
+                  <td><strong>${r.reportNumber}</strong></td>
+                  <td>${escapeHtml(r.roadName)}, ${escapeHtml(r.villageArea)}</td>
+                  <td>${escapeHtml(r.description || '-')}</td>
+                  <td>${stBadge}</td>
+                  <td>${repBadge}</td>
+                  <td>${r.pointsAwarded > 0 ? `<span class="badge badge-points">+${r.pointsAwarded} pts</span>` : '0 pts'}</td>
+                  <td style="color: var(--text-muted); font-size: 0.78rem;">${formatDate(r.createdAt)}</td>
+                </tr>
+              `;
+            }).join('');
+          }
+        }
+      } catch (err) {
+        showToast('Error loading villager summary: ' + err.message, 'error');
+      }
+    }
+
+    function closeVillagerSummaryModal() {
+      document.getElementById('villager-summary-modal').classList.remove('active');
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+    }
+
+    // Modal background close listeners
+    window.addEventListener('click', (e) => {
+      const repModal = document.getElementById('repair-modal');
+      const vsumModal = document.getElementById('villager-summary-modal');
+      if (e.target === repModal) closeRepairModal();
+      if (e.target === vsumModal) closeVillagerSummaryModal();
+    });
+
+    loadStats();
+    loadReports();
+  </script>
+</body>
+</html>
